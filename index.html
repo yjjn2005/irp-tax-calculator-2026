@@ -239,6 +239,7 @@ footer{position:relative;z-index:1;text-align:center;padding:22px;font-size:10px
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="switchTab('calc',this)">🧮 세금 계산기</button>
     <button class="nav-tab" onclick="switchTab('limit',this)">📅 연금수령 계획표</button>
+    <button class="nav-tab" onclick="switchTab('pension',this)">💰 연금소득세</button>
     <button class="nav-tab" onclick="switchTab('guide',this)">📖 세율·공제 해설</button>
     <button class="nav-tab" onclick="switchTab('easy',this)">🧒 쉬운 설명</button>
   </div>
@@ -350,6 +351,77 @@ footer{position:relative;z-index:1;text-align:center;padding:22px;font-size:10px
         <div class="si"><div class="sn">2</div><div class="sb"><div class="st">운용수익 과세: 연금소득세 3.3~5.5%</div><div class="sd">IRP 계좌 내 운용수익은 인출 시 과세. 연 1,500만원 이하: 3.3~5.5%. 초과분: 종합소득세 또는 16.5% 분리과세 선택. 계좌 내 운용 시 과세 이연 (매우 큰 장점).</div></div></div>
         <div class="si"><div class="sn">3</div><div class="sb"><div class="st">사망 시: 잔액 3.3% 차감 후 상속 → 약 50% 상속세</div><div class="sd">금액이 클 경우 약 50% 상속세 발생 가능. 사전 상속 전략 수립 권고.</div></div></div>
         <div class="si"><div class="sn">4</div><div class="sb"><div class="st">퇴직금 먼저 인출, 운용수익은 이후 발생</div><div class="sd">IRP 내 퇴직금이 먼저 사용되고 운용수익은 순차 발생. 인출(연금수령/해지) 시점에 세금 결정.</div></div></div>
+      </div>
+    </div>
+  </div>
+  <!-- ══ TAB: 연금소득세 ══ -->
+  <div id="tab-pension" class="tab-pane">
+    <div class="glass">
+      <div class="ch"><div class="ch-icon">💰</div><div class="ch-title">연금소득세 계산 (세액공제분 + 운용수익 인출)</div><div class="ch-badge">2026 기준</div></div>
+      <div class="cb">
+        <div class="ibox blue" style="margin-bottom:12px">
+          <strong>이 탭은 "퇴직금"이 아닌 부분을 계산합니다</strong><br>
+          ① 세액공제 받은 납입 원금 + ② 계좌 운용수익(이자·배당·매매차익)을 연금으로 인출할 때의 <strong>연금소득세</strong>를 산출합니다. (퇴직금 원금은 「세금 계산기」 탭에서 별도 계산)
+        </div>
+        <div class="i2" style="margin-bottom:6px">
+          <div class="ig" style="margin-bottom:0">
+            <div class="il">대상 금액 (세액공제분+운용수익) <span>필수</span></div>
+            <div class="iw"><span class="ipfx">₩</span>
+              <input class="if_" type="number" id="pen-amt" value="100000000" oninput="calcPension()">
+            </div>
+            <div class="ikr" id="pen-kr"></div>
+            <div class="ih">연금계좌 내 과세대상 평가액 (퇴직금 제외)</div>
+          </div>
+          <div class="ig" style="margin-bottom:0">
+            <div class="il">만 나이 <span>필수</span></div>
+            <div class="iw">
+              <input class="if_ yf" type="number" id="pen-age" min="55" max="110" value="65" oninput="calcPension()">
+              <span class="isfx">세</span>
+            </div>
+            <div class="ih" id="pen-age-hint" style="margin-top:6px"></div>
+          </div>
+        </div>
+        <div class="ig" style="margin-bottom:14px;max-width:50%">
+          <div class="il">연금수령 연차 <span>필수</span></div>
+          <div class="iw">
+            <input class="if_ yf" type="number" id="pen-yr" min="1" max="30" value="1" oninput="calcPension()">
+            <span class="isfx">차</span>
+          </div>
+          <div class="ih">연금 개시 후 몇 번째 해인지 (연금수령한도 계산)</div>
+        </div>
+        <div>
+          <div class="pl">연간 연금소득 구간 (과세방식 선택)</div>
+          <div class="pg">
+            <button class="pb active" id="btn-pen-low" onclick="setPenRegime(0)">
+              <div class="pb-i">🟢</div><div class="pb-t">연 1,500만원 이하</div>
+              <div class="pb-s">저율 분리과세<br><span style="color:var(--green);font-size:9px">연령별 3.3~5.5%</span></div>
+            </button>
+            <button class="pb" id="btn-pen-high" onclick="setPenRegime(1)">
+              <div class="pb-i">🔴</div><div class="pb-t">연 1,500만원 초과</div>
+              <div class="pb-s">16.5% 분리과세<br><span style="color:var(--red);font-size:9px">종합과세 선택 가능</span></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="glass" id="pen-result" style="display:none">
+      <div class="ch"><div class="ch-icon">📊</div><div class="ch-title" id="pen-title">연금소득세 계산 결과</div><div class="ch-badge">2026 기준</div></div>
+      <div class="cb"><div class="rg" id="pen-steps"></div></div>
+    </div>
+    <div class="glass">
+      <div class="ch"><div class="ch-icon">📖</div><div class="ch-title">연금소득세 핵심 규칙</div><div class="ch-badge">소득세법 §129·§20-3</div></div>
+      <div class="cb">
+        <div class="tw"><table class="dt" style="margin-bottom:10px">
+          <thead><tr><th>만 나이</th><th>연금소득세율</th><th>지방세 포함</th></tr></thead>
+          <tbody>
+            <tr><td>만 55세 ~ 69세</td><td>5%</td><td class="hl" style="text-align:center;font-weight:700">5.5%</td></tr>
+            <tr><td>만 70세 ~ 79세</td><td>4%</td><td class="hl" style="text-align:center;font-weight:700">4.4%</td></tr>
+            <tr><td>만 80세 이상</td><td>3%</td><td class="hl" style="text-align:center;font-weight:700">3.3%</td></tr>
+          </tbody>
+        </table></div>
+        <div class="si"><div class="sn">1</div><div class="sb"><div class="st">연 1,500만원 이하 → 저율 분리과세</div><div class="sd">연간 사적연금소득 합계가 1,500만원 이하면 위 연령별 세율(3.3~5.5%)로 분리과세 종결. 나이 들수록 세율이 낮아집니다.</div></div></div>
+        <div class="si"><div class="sn">2</div><div class="sb"><div class="st">연 1,500만원 초과 → 16.5% 분리과세 또는 종합과세</div><div class="sd">초과 시 전액에 대해 16.5% 분리과세 또는 종합과세(다른 소득과 합산, 6.6~49.5%) 중 유리한 쪽 선택. 본 계산기는 16.5% 분리과세 기준입니다.</div></div></div>
+        <div class="si"><div class="sn">3</div><div class="sb"><div class="st">연금수령한도 초과분 → 16.5% 기타소득세</div><div class="sd">한도(잔액×연차÷(11−연차)×1.2) 초과 인출분은 저율 혜택 없이 16.5% 기타소득세 부과. 한도 내 분할수령이 절세에 유리합니다.</div></div></div>
       </div>
     </div>
   </div>
@@ -750,6 +822,66 @@ function updateEasy(a,yr,r){
   sid('e-sn',sw(r.sav)+'원을 더 받을 수 있어요!');
   sid('e-win','IRP를 선택하면 '+won(r.sav)+'을 더 받아요! 아파트 전세금 '+Math.floor(r.sav/100000000)+'채분이에요! 🏠');
 }
+/* ── 연금소득세 ── */
+var penRegime=0; // 0=1500만 이하(저율), 1=1500만 초과(16.5%)
+function penAgeRate(age){
+  if(age>=80) return 0.033;
+  if(age>=70) return 0.044;
+  return 0.055;
+}
+function penAgeLbl(age){
+  if(age>=80) return '만 80세 이상 · 3.3%';
+  if(age>=70) return '만 70~79세 · 4.4%';
+  if(age>=55) return '만 55~69세 · 5.5%';
+  return '만 55세 미만 (연금수령 요건 미달)';
+}
+function setPenRegime(r){ applyPenRegime(r); }
+function applyPenRegime(r){
+  penRegime=r;
+  document.getElementById('btn-pen-low').classList.toggle('active',r===0);
+  document.getElementById('btn-pen-high').classList.toggle('active',r===1);
+  calcPension();
+}
+function calcPension(){
+  var raw=parseFloat(document.getElementById('pen-amt').value);
+  var bal=isNaN(raw)?0:raw;
+  var age=parseInt(document.getElementById('pen-age').value)||0;
+  var yr=parseInt(document.getElementById('pen-yr').value)||1;
+  document.getElementById('pen-kr').textContent=krL(bal);
+  document.getElementById('pen-age-hint').textContent=penAgeLbl(age);
+  if(!bal||bal<=0){ document.getElementById('pen-result').style.display='none'; return; }
+  var ageRate=penAgeRate(age);
+  // 연금수령한도 (연차 기반)
+  var limit = (yr<11)? bal*yr/(11-yr)*1.2 : bal;
+  if(limit>bal) limit=bal;
+  var withdraw=limit; // 올해 한도까지 인출 가정
+  var lowRate=ageRate, highRate=0.165;
+  var rate = penRegime===0? lowRate : highRate;
+  var regimeLbl = penRegime===0? '저율 분리과세 (연 1,500만 이하)' : '16.5% 분리과세 (연 1,500만 초과)';
+  var tax=withdraw*rate;
+  var net=withdraw-tax;
+  var html='';
+  html+=rrow('inp-r','입력','blu','과세대상 평가액 (세액공제분+운용수익)','만 '+age+'세 · '+yr+'차',won(bal),'blue');
+  html+='<div class="rdiv"></div>';
+  html+=rrow('','연령','','연령별 연금소득세율',penAgeLbl(age),pct(ageRate),'');
+  html+=rrow('','한도','','올해 연금수령한도',won(bal)+'\xd7'+yr+'\xf7(11-'+yr+')\xd71.2',won(Math.round(withdraw)),'');
+  html+=rrow('ttl-r','과세','blu','적용 과세방식',regimeLbl,pct(rate),'blue');
+  html+='<div class="rdiv"></div>';
+  html+=rrow('red-r','세금','red','연금소득세','한도수령액\xd7'+pct(rate),won(Math.round(tax)),'red xl');
+  html+=rrow('grn-r','수령','grn','세후 수령액 (올해)','한도수령액-세금',won(Math.round(net)),'grn xl');
+  // 권장 안내
+  var over = withdraw>15000000;
+  if(over && penRegime===0){
+    html+='<div class="ibox red" style="margin-top:8px">⚠️ 올해 한도수령액('+won(Math.round(withdraw))+')이 1,500만원을 초과합니다. 실제로는 「연 1,500만원 초과」 버튼(16.5% 분리과세 또는 종합과세)이 적용됩니다.</div>';
+  } else if(!over && penRegime===1){
+    html+='<div class="ibox green" style="margin-top:8px">💡 올해 한도수령액('+won(Math.round(withdraw))+')이 1,500만원 이하입니다. 「연 1,500만원 이하」 저율 분리과세('+pct(ageRate)+')가 더 유리합니다.</div>';
+  } else {
+    html+='<div class="ibox gold" style="margin-top:8px">한도 내 분할수령 기준 · 연 1,500만원 초과 시 종합과세와 16.5% 분리과세 중 유리한 쪽을 선택할 수 있습니다.</div>';
+  }
+  document.getElementById('pen-steps').innerHTML=html;
+  document.getElementById('pen-title').textContent='연금소득세 · 만 '+age+'세 · '+yr+'차 · 2026 기준';
+  document.getElementById('pen-result').style.display='block';
+}
 /* ── TAB ── */
 function switchTab(name, btn){
   document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
@@ -757,6 +889,7 @@ function switchTab(name, btn){
   document.getElementById('tab-'+name).classList.add('active');
   if(btn) btn.classList.add('active');
   if(name==='limit') calcLimit();
+  if(name==='pension') calcPension();
   if(name==='easy' && lastR) updateEasy(lastA, lastYr, lastR);
 }
 /* ── INIT ── */
@@ -766,6 +899,7 @@ function switchTab(name, btn){
   document.getElementById('lmt-amt').value='14000000000';
   document.getElementById('lmt-yr').value='23';
   calcLimit();
+  applyPenRegime(0);
   calc();
 })();
 </script>
