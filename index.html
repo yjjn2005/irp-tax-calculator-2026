@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IRP 퇴직소득세 계산기 2026 | 유재진 자산운용 리서치</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0D1117;--ink-mid:#1A2232;--ink-soft:#263147;
+  --gold:#BFA16A;--gold-lt:#D4B97C;--gold-shin:#EDD898;--gold-pale:#F5EDD8;
+  --cream:#F8F4EE;--cream-dk:#EDE8DF;--white:#FFFFFF;
+  --red:#9B2335;--red-lt:#F7E8EA;
+  --green:#1A5C3A;--green-lt:#E4F2EA;
+  --blue-lt:#EEF4FB;--blue-h:#1A4F8A;
+  --teal:#0E6655;--teal-lt:#E8F8F5;
+  --muted:#6E7A8A;
+  --border:rgba(191,161,106,.22);--border-dk:rgba(191,161,106,.45);
+  --r:12px;--r-lg:18px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--ink);color:var(--ink);min-height:100vh;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 45% at 85% 8%,rgba(191,161,106,.07) 0%,transparent 60%),
+             radial-gradient(ellipse 45% 55% at 8% 85%,rgba(191,161,106,.05) 0%,transparent 60%),
+             linear-gradient(155deg,#0D1117 0%,#141C2B 55%,#0D1117 100%)}
+header{position:sticky;top:0;z-index:200;background:rgba(13,17,23,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.hd{max-width:1000px;margin:0 auto;padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px}
+.bmark{width:34px;height:34px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-lt) 100%);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--ink)}
+.bname{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--gold-lt);line-height:1.2}
+.bsub{font-size:9px;color:rgba(191,161,106,.5);letter-spacing:1.5px;text-transform:uppercase}
+.hbadge{display:flex;gap:5px}
+.hpill{font-size:10px;font-weight:600;letter-spacing:.7px;color:var(--gold);border:1px solid var(--border-dk);padding:4px 11px;border-radius:20px;text-transform:uppercase}
+.hpill.new{background:rgba(191,161,106,.15);color:var(--gold-shin)}
+main{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:32px 20px 72px}
+.hero{text-align:center;padding:6px 0 32px;position:relative}
+.hero::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:90px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-family:'Inter',sans-serif;font-weight:500;margin-bottom:10px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,4.5vw,42px);font-weight:600;color:var(--white);line-height:1.18;margin-bottom:8px}
+.hero h1 em{font-style:italic;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-shin) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:11px;color:rgba(255,255,255,.36);line-height:1.8;max-width:480px;margin:0 auto}
+.ubanner{display:inline-flex;align-items:center;gap:6px;background:rgba(191,161,106,.1);border:1px solid var(--border-dk);border-radius:20px;padding:4px 14px;margin-bottom:12px;font-size:11px;color:var(--gold-lt)}
+/* NAV */
+.nav-tabs{display:flex;gap:2px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--r-lg);padding:3px;margin-bottom:20px}
+.nav-tab{flex:1;padding:9px 5px;border:none;border-radius:calc(var(--r-lg) - 3px);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:400;color:rgba(255,255,255,.3);cursor:pointer;transition:all .2s;line-height:1.4}
+.nav-tab.active{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-lt) 100%);color:var(--ink);font-weight:700;box-shadow:0 2px 14px rgba(191,161,106,.3)}
+.nav-tab:not(.active):hover{color:rgba(255,255,255,.6);background:rgba(255,255,255,.05)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+/* CARDS */
+.glass{background:rgba(255,255,255,.97);border-radius:var(--r-lg);border:1px solid rgba(191,161,106,.15);box-shadow:0 6px 32px rgba(13,17,23,.14);overflow:hidden;margin-bottom:12px}
+.glass-dk{background:rgba(26,34,50,.93);backdrop-filter:blur(14px);border-radius:var(--r-lg);border:1px solid var(--border-dk);box-shadow:0 20px 70px rgba(13,17,23,.24);overflow:hidden;margin-bottom:12px}
+.ch{padding:12px 18px;display:flex;align-items:center;gap:9px;border-bottom:1px solid rgba(191,161,106,.12);background:linear-gradient(90deg,rgba(191,161,106,.05) 0%,transparent 100%)}
+.ch-icon{width:28px;height:28px;border-radius:7px;flex-shrink:0;background:linear-gradient(135deg,var(--ink) 0%,var(--ink-soft) 100%);display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border)}
+.ch-title{font-size:13px;font-weight:700;color:var(--ink-mid);flex:1}
+.ch-badge{font-size:10px;color:var(--gold);background:rgba(191,161,106,.1);border:1px solid rgba(191,161,106,.26);padding:2px 8px;border-radius:8px;letter-spacing:.3px;white-space:nowrap}
+.cb{padding:16px 18px}
+/* INPUT */
+.i2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.ig{margin-bottom:12px}
+.il{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.il span{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-lt) 100%);color:var(--ink);font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px}
+.iw{position:relative}
+.ipfx{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--gold);pointer-events:none}
+.isfx{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);pointer-events:none}
+.if_{width:100%;padding:13px 13px 13px 36px;border:2px solid var(--cream-dk);border-radius:var(--r);font-family:'Inter',sans-serif;font-size:18px;font-weight:600;color:var(--ink);background:var(--cream);outline:none;transition:border-color .2s,box-shadow .2s,background .2s;appearance:textfield;-moz-appearance:textfield}
+.if_.yf{padding-left:13px;padding-right:30px;text-align:right}
+.if_::-webkit-outer-spin-button,.if_::-webkit-inner-spin-button{-webkit-appearance:none}
+.if_:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(191,161,106,.14);background:var(--white)}
+.ih{font-size:10px;color:var(--muted);margin-top:4px}
+.ikr{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:500;color:var(--gold);text-align:right;margin-top:-3px;margin-bottom:2px;min-height:18px}
+/* PHASE BTNS */
+.pl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.pb{padding:11px 8px;border-radius:var(--r);cursor:pointer;border:2px solid var(--cream-dk);background:var(--cream);transition:all .2s;text-align:center;position:relative;overflow:hidden}
+.pb::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;background:linear-gradient(135deg,var(--ink) 0%,var(--ink-soft) 100%)}
+.pb.active{border-color:var(--gold)}.pb.active::before{opacity:1}
+.pb-i{font-size:16px;margin-bottom:2px;position:relative;z-index:1}
+.pb-t{font-size:11px;font-weight:700;position:relative;z-index:1;transition:color .2s;color:var(--ink-mid)}
+.pb-s{font-size:9px;color:var(--muted);margin-top:1px;position:relative;z-index:1;transition:color .2s;line-height:1.4}
+.pb.active .pb-t{color:var(--gold-lt)}.pb.active .pb-s{color:rgba(191,161,106,.6)}
+/* RESULT ROWS */
+.rg{display:grid;gap:5px}
+.rr{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:9px 13px;border-radius:var(--r);background:var(--cream);border:1px solid transparent}
+.rr.inp-r{background:var(--blue-lt);border-color:#C5D8EE}
+.rr.red-r{background:var(--red-lt);border-color:rgba(155,35,53,.15)}
+.rr.grn-r{background:var(--green-lt);border-color:rgba(26,92,58,.15)}
+.rr.gld-r{background:var(--gold-pale);border-color:rgba(191,161,106,.36);border-width:1.5px}
+.rr.ttl-r{background:var(--blue-lt);border-color:#B8D0EB;border-width:1.5px}
+.rl{line-height:1.4}
+.rtag{display:inline-block;font-size:9px;font-weight:700;background:var(--ink);color:var(--gold-lt);padding:1px 6px;border-radius:3px;margin-right:3px;vertical-align:middle;font-family:'Inter',sans-serif}
+.rtag.red{background:var(--red)}.rtag.grn{background:var(--green)}.rtag.blu{background:var(--blue-h)}
+.rname{font-size:11px;color:#374151;font-weight:500}
+.rform{font-size:10px;color:var(--muted);font-family:'Inter',monospace;margin-top:1px;display:block}
+.rv{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--ink);white-space:nowrap;text-align:right}
+.rv.blue{color:var(--blue-h)}.rv.red{color:var(--red)}.rv.grn{color:var(--green)}.rv.gld{color:#8A6520}
+.rv.xl{font-size:15px}.rv.pct{font-size:11px}
+.rdiv{height:1px;background:linear-gradient(90deg,transparent,rgba(191,161,106,.3),transparent);margin:2px 0}
+.phdr{padding:7px 13px;border-radius:var(--r);margin-bottom:6px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.phdr.ph1{background:rgba(26,79,138,.1);color:var(--blue-h);border:1px solid rgba(26,79,138,.18)}
+.phdr.ph2{background:rgba(26,92,58,.1);color:var(--green);border:1px solid rgba(26,92,58,.18)}
+.phdr.ph3{background:rgba(139,90,43,.1);color:#8B5A2B;border:1px solid rgba(139,90,43,.18)}
+.ptag{font-size:9px;font-weight:700;padding:1px 7px;border-radius:4px;color:white}
+.ph1 .ptag{background:var(--blue-h)}.ph2 .ptag{background:var(--green)}.ph3 .ptag{background:#8B5A2B}
+/* SUMMARY */
+.sw{padding:20px}
+.seye{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-family:'Inter',sans-serif;text-align:center;margin-bottom:16px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ccol{border-radius:var(--r);padding:14px 11px;text-align:center}
+.ccol.rr_{background:rgba(155,35,53,.12);border:1px solid rgba(155,35,53,.22)}
+.ccol.gg_{background:rgba(26,92,58,.12);border:1px solid rgba(26,92,58,.22)}
+.ct_{font-size:11px;font-weight:700;margin-bottom:10px}
+.rr_ .ct_{color:#F1948A}.gg_ .ct_{color:#82E0AA}
+.ci{margin-bottom:9px}.ci:last-child{margin-bottom:0}
+.ci-l{font-size:10px;color:rgba(255,255,255,.36);margin-bottom:2px}
+.ci-v{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;line-height:1.2}
+.ci-v.lg{font-size:15px}
+.rr_ .ci-v{color:#F1948A}.gg_ .ci-v{color:#82E0AA}
+.sav{border-radius:var(--r);padding:13px 18px;text-align:center;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-shin) 55%,var(--gold-lt) 100%)}
+.sav::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.13) 100%)}
+.sav-l{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:rgba(13,17,23,.6);margin-bottom:3px;position:relative;font-family:'Inter',sans-serif}
+.sav-v{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--ink);position:relative;line-height:1}
+.sav-n{font-size:10px;color:rgba(13,17,23,.46);margin-top:2px;position:relative}
+.fn{font-size:10px;color:rgba(255,255,255,.17);text-align:center;padding-top:11px;line-height:2;border-top:1px solid var(--border);margin-top:11px}
+/* LIMIT TABLE */
+.lt-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px;background:var(--white);border-radius:var(--r);overflow:hidden}
+.lt-table th{background:var(--ink);color:var(--gold-lt);padding:10px 8px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.4px;font-family:'Inter',sans-serif;white-space:nowrap}
+.lt-table td{padding:9px 8px;border-bottom:1px solid #F0F0F0;text-align:right;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--ink)}
+.lt-table td:first-child{text-align:center;font-weight:700;color:var(--blue-h);background:#F8FBFF}
+.lt-table td:nth-child(2){text-align:left;color:var(--muted);font-weight:500;font-family:'Noto Sans KR',sans-serif}
+.lt-table tr:last-child td{border-bottom:none}
+.lt-table tr:nth-child(even) td{background:#FAFAFA}
+.lt-table tr:nth-child(even) td:first-child{background:#F0F5FC}
+.lt-table .tot-row td{background:var(--gold-pale);font-weight:700;color:#7A5210;border-top:2px solid var(--gold)}
+.lt-table .red-val{color:var(--red)}
+.lt-table .grn-val{color:var(--green)}
+/* INFO BOX */
+.ibox{border-radius:var(--r);padding:11px 13px;margin-top:8px;font-size:11px;line-height:1.8}
+.ibox.blue{background:var(--blue-lt);border:1px solid #C5D8EE;color:var(--blue-h)}
+.ibox.green{background:var(--green-lt);border:1px solid #A9DFBF;color:var(--green)}
+.ibox.gold{background:var(--gold-pale);border:1px solid rgba(191,161,106,.38);color:#7A5210}
+.ibox.red{background:var(--red-lt);border:1px solid rgba(155,35,53,.2);color:var(--red)}
+/* GUIDE */
+.si{display:flex;align-items:flex-start;gap:11px;padding:13px 15px;background:var(--white);border-radius:var(--r);border-left:3px solid var(--gold);box-shadow:0 2px 10px rgba(13,17,23,.06);margin-bottom:7px}
+.sn{width:24px;height:24px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--ink) 0%,var(--ink-soft) 100%);color:var(--gold-lt);font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.sb{flex:1}
+.st{font-size:12px;font-weight:700;color:var(--ink-mid);margin-bottom:3px;display:flex;align-items:center;gap:7px}
+.ntag{font-size:9px;font-weight:700;background:var(--red);color:white;padding:1px 6px;border-radius:3px}
+.sd{font-size:11px;color:var(--muted);line-height:1.7}
+.sf{font-family:'Inter',monospace;font-size:10px;background:var(--cream);color:var(--ink-mid);padding:5px 9px;border-radius:5px;margin-top:6px;border-left:2px solid var(--gold)}
+.tw{overflow-x:auto}
+.dt{width:100%;border-collapse:collapse;font-size:11px;background:var(--white);border-radius:var(--r);overflow:hidden;min-width:360px}
+.dt th{background:var(--ink);color:var(--gold-lt);padding:9px 11px;text-align:center;font-size:10px;font-weight:600;font-family:'Inter',sans-serif}
+.dt td{padding:8px 11px;border-bottom:1px solid #F3F4F6;text-align:center;color:var(--ink)}
+.dt tr:last-child td{border-bottom:none}.dt tr:nth-child(even) td{background:#FAFAFA}
+.dt td:first-child{text-align:left;font-weight:500}.dt .hl td{background:var(--gold-pale);font-weight:700;color:#7A5210}
+.dt .nr td{background:#FFF3CD;font-weight:600;color:#856404}
+.ctbl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:9px}
+.ccl{border-radius:var(--r);padding:12px;border:2px solid}
+.old-c{background:#FFF8F0;border-color:rgba(155,35,53,.28)}
+.new-c{background:var(--green-lt);border-color:rgba(26,92,58,.28)}
+.cct{font-size:10px;font-weight:700;margin-bottom:8px}
+.old-c .cct{color:var(--red)}.new-c .cct{color:var(--green)}
+.cr{font-size:11px;color:var(--muted);padding:3px 0;border-bottom:1px solid rgba(0,0,0,.06);line-height:1.5}
+.cr:last-child{border-bottom:none}.cr strong{color:var(--ink)}
+.rqg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}
+.rqi{background:var(--green-lt);border:1px solid rgba(26,92,58,.16);border-radius:var(--r);padding:11px;text-align:center}
+.rqn{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--green);margin-bottom:2px}
+.rqt{font-size:12px;font-weight:700;color:var(--green)}.rqd{font-size:10px;color:var(--muted)}
+/* EASY */
+.eh{background:linear-gradient(135deg,#1A2232 0%,#263147 100%);border-radius:var(--r-lg);padding:18px;margin-bottom:12px;border:1px solid var(--border);text-align:center}
+.sc{background:var(--white);border-radius:var(--r-lg);overflow:hidden;margin-bottom:9px;box-shadow:0 3px 16px rgba(13,17,23,.09)}
+.sh{padding:10px 16px;display:flex;align-items:center;gap:10px}
+.sh.c1{background:linear-gradient(90deg,#EEF4FB,#F8FBFF)}.sh.c2{background:linear-gradient(90deg,#E8F5E9,#F1F8F2)}
+.sh.c3{background:linear-gradient(90deg,#FFF8E1,#FFFDF0)}.sh.c4{background:linear-gradient(90deg,#FCE4EC,#FFF5F7)}
+.sh.c5{background:linear-gradient(90deg,#E8F5E9,#F0FAF2)}.sh.c6{background:linear-gradient(90deg,#F5EDD8,#FFFDF5)}
+.sbdg{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.c1 .sbdg{background:#BBDEFB}.c2 .sbdg{background:#C8E6C9}.c3 .sbdg{background:#FFE082}
+.c4 .sbdg{background:#FFCDD2}.c5 .sbdg{background:#A5D6A7}.c6 .sbdg{background:var(--gold-pale)}
+.ssn{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;font-family:'Inter',sans-serif}
+.sst{font-size:12px;font-weight:700;color:var(--ink-mid);margin-top:1px}
+.sby{padding:12px 16px}
+.sa{font-size:12px;color:var(--ink-soft);line-height:1.8;margin-bottom:9px}
+.sa strong{color:var(--ink);font-weight:700}.sa em{color:var(--blue-h);font-style:normal;font-weight:600}
+.cb_{border-radius:var(--r);padding:10px 12px;background:#F8F9FA;border:1px solid #E9ECEF}
+.cbt{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:7px}
+.cl{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #F0F0F0;font-size:11px}
+.cl:last-child{border-bottom:none;padding-top:7px;margin-top:2px;border-top:2px solid var(--gold)}
+.cll{color:var(--muted)}.clv{font-family:'Inter',sans-serif;font-weight:700;color:var(--ink)}
+.cl.res .cll{font-weight:700;color:var(--ink-mid)}.cl.res .clv{color:var(--blue-h);font-size:12px}
+.bbl{border-radius:9px;padding:10px 13px;margin-top:8px;font-size:11px;line-height:1.7;position:relative}
+.bbl::before{content:'💡';position:absolute;top:-8px;left:12px;font-size:15px}
+.bbl.tip{background:var(--gold-pale);border:1px solid rgba(191,161,106,.33);color:#7A5210;padding-top:13px}
+.bbl.warn{background:var(--red-lt);border:1px solid rgba(155,35,53,.18);color:var(--red);padding-top:13px}
+.bbl.warn::before{content:'⚠️'}.bbl.win{background:var(--green-lt);border:1px solid rgba(26,92,58,.18);color:var(--green);padding-top:13px}
+.bbl.win::before{content:'🎉'}
+.fc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.fcc{border-radius:var(--r);padding:12px;text-align:center}
+.fcc.r{background:var(--red-lt);border:1px solid rgba(155,35,53,.18)}
+.fcc.g{background:var(--green-lt);border:1px solid rgba(26,92,58,.18)}
+.fct{font-size:10px;font-weight:700;margin-bottom:8px}
+.fcc.r .fct{color:var(--red)}.fcc.g .fct{color:var(--green)}
+.fci{margin-bottom:6px}.fcil{font-size:10px;color:var(--muted);margin-bottom:1px}
+.fciv{font-family:'Inter',sans-serif;font-size:11px;font-weight:700}
+.fciv.lg{font-size:14px}
+.fcc.r .fciv{color:var(--red)}.fcc.g .fciv{color:var(--green)}
+.es{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-shin) 100%);border-radius:var(--r);padding:12px;text-align:center;margin-top:4px}
+.es-l{font-size:9px;font-weight:700;color:rgba(13,17,23,.6);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+.es-v{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--ink)}
+.es-n{font-size:10px;color:rgba(13,17,23,.48);margin-top:2px}
+footer{position:relative;z-index:1;text-align:center;padding:22px;font-size:10px;color:rgba(255,255,255,.17);letter-spacing:.4px;line-height:2;border-top:1px solid var(--border)}
+@media(max-width:580px){
+  main{padding:18px 11px 48px}.hero h1{font-size:20px}
+  .cmp,.fc,.ctbl,.i2{grid-template-columns:1fr}
+  .hd{padding:0 11px}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<header>
+  <div class="hd">
+    <div class="brand">
+      <div class="bmark">Y</div>
+      <div><div class="bname">유재진 자산운용 리서치</div><div class="bsub">Yu Asset Management Research</div></div>
+    </div>
+    <div class="hbadge"><div class="hpill new">2026 개정</div><div class="hpill">국세청 검증</div></div>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="ubanner">✅ 국세청 스캔본 6개 항목 전수 일치 검증 완료 · 2026년 세법 적용</div>
+    <div class="eyebrow">IRP Retirement Tax Planner</div>
+    <h1>IRP 퇴직소득세<br><em>2026 완전판</em></h1>
+    <p>퇴직금·근속연수 입력 → 단계별 세금 자동 계산<br>
+       1~10차년도 연금수령 한도 · 세금 · 세후금액 자동 산출</p>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('calc',this)">🧮 세금 계산기</button>
+    <button class="nav-tab" onclick="switchTab('limit',this)">📅 연금수령 계획표</button>
+    <button class="nav-tab" onclick="switchTab('guide',this)">📖 세율·공제 해설</button>
+    <button class="nav-tab" onclick="switchTab('easy',this)">🧒 쉬운 설명</button>
+  </div>
+  <!-- ══ TAB 1: 계산기 ══ -->
+  <div id="tab-calc" class="tab-pane active">
+    <div class="glass">
+      <div class="ch"><div class="ch-icon">✏️</div><div class="ch-title">퇴직금 및 근속연수 입력</div><div class="ch-badge">2026 개정 세법</div></div>
+      <div class="cb">
+        <div class="i2">
+          <div class="ig" style="margin-bottom:0">
+            <div class="il">IRP 퇴직금 총액 <span>필수</span></div>
+            <div class="iw"><span class="ipfx">₩</span>
+              <input class="if_" type="number" id="inp-amt" value="14000000000" oninput="calc()">
+            </div>
+            <div class="ikr" id="kr-lbl"></div>
+            <div class="ih">기본값: 140억 (14,000,000,000) — 수정 가능</div>
+          </div>
+          <div class="ig" style="margin-bottom:0">
+            <div class="il">근속연수 <span>필수</span></div>
+            <div class="iw">
+              <input class="if_ yf" type="number" id="inp-yr" min="1" max="50" value="23" oninput="onYrInput()">
+              <span class="isfx">년</span>
+            </div>
+            <div class="ih" id="yr-hint" style="margin-top:6px"></div>
+          </div>
+        </div>
+        <div>
+          <div class="pl">근속 구간 (자동 선택)</div>
+          <div class="pg">
+            <button class="pb" id="btn-p1" onclick="setPhase(1)">
+              <div class="pb-i">🏢</div><div class="pb-t">1 ~ 10년차</div>
+              <div class="pb-s">공제 최대 1,500만<br><span style="color:var(--gold);font-size:9px">2026 확대↑</span></div>
+            </button>
+            <button class="pb" id="btn-p2" onclick="setPhase(2)">
+              <div class="pb-i">🏆</div><div class="pb-t">11 ~ 20년차</div>
+              <div class="pb-s">공제 최대 4,000만<br><span style="color:var(--gold);font-size:9px">2026 확대↑</span></div>
+            </button>
+            <button class="pb" id="btn-p3" onclick="setPhase(3)" style="grid-column:span 2">
+              <div class="pb-i">💎</div><div class="pb-t">20년 초과</div>
+              <div class="pb-s">4,000만+300만×(연수−20) · 2026 대폭 확대 · 기본값 23년</div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="glass" id="result-card" style="display:none">
+      <div class="ch"><div class="ch-icon">📊</div><div class="ch-title" id="result-title">단계별 세금 계산</div><div class="ch-badge">2026 세법 적용</div></div>
+      <div class="cb"><div class="rg" id="r-steps"></div></div>
+    </div>
+    <div class="glass-dk" id="summary-card" style="display:none">
+      <div class="sw">
+        <div class="seye" id="s-eye">일시금 vs IRP 연금수령 비교</div>
+        <div class="cmp">
+          <div class="ccol rr_">
+            <div class="ct_">💳 일시금 수령</div>
+            <div class="ci"><div class="ci-l">납부 세금</div><div class="ci-v" id="s-lt">—</div></div>
+            <div class="ci"><div class="ci-l">실수령액</div><div class="ci-v lg" id="s-ln">—</div></div>
+            <div class="ci"><div class="ci-l">실효세율</div><div class="ci-v" id="s-lr">—</div></div>
+          </div>
+          <div class="ccol gg_">
+            <div class="ct_">🏦 IRP 연금수령</div>
+            <div class="ci"><div class="ci-l">납부세금 (30%감면)</div><div class="ci-v" id="s-it">—</div></div>
+            <div class="ci"><div class="ci-l">실수령 원금</div><div class="ci-v lg" id="s-in">—</div></div>
+            <div class="ci"><div class="ci-l">실효세율</div><div class="ci-v" id="s-ir">—</div></div>
+          </div>
+        </div>
+        <div class="sav">
+          <div class="sav-l">IRP 선택 시 절세액</div>
+          <div class="sav-v" id="s-sav">—</div>
+          <div class="sav-n">일시금 대비 추가 수령액 (30% 감면)</div>
+        </div>
+        <div class="fn">※ IRP 30%감면: 만 55세 이후 연금개시 + 10년 이상 분할수령 (조특법 §146) · 지방소득세 10% 포함 · 2026 세법</div>
+      </div>
+    </div>
+  </div>
+  <!-- ══ TAB 2: 연금수령 계획표 ══ -->
+  <div id="tab-limit" class="tab-pane">
+    <div class="glass">
+      <div class="ch"><div class="ch-icon">📅</div><div class="ch-title">IRP 연간 연금수령 계획표 (1~10차년도)</div><div class="ch-badge">스캔본 공식 적용</div></div>
+      <div class="cb">
+        <div class="ibox blue" style="margin-bottom:12px">
+          <strong>연간수령한도 공식 (국세청 스캔본 확인)</strong><br>
+          한도 = 총액 × N ÷ (11−N) × 1.2 &nbsp;(N = 해당 연차, 1~10)<br>
+          ※ 한도 이내 수령 시 퇴직소득세 30% 감면 적용 · 한도 초과분은 감면 없음
+        </div>
+        <div class="i2" style="margin-bottom:8px">
+          <div class="ig" style="margin-bottom:0">
+            <div class="il">IRP 퇴직금 총액 <span>입력</span></div>
+            <div class="iw"><span class="ipfx">₩</span>
+              <input class="if_" type="number" id="lmt-amt" placeholder="14000000000" oninput="calcLimit()">
+            </div>
+            <div class="ikr" id="lmt-kr"></div>
+          </div>
+          <div class="ig" style="margin-bottom:0">
+            <div class="il">근속연수</div>
+            <div class="iw">
+              <input class="if_ yf" type="number" id="lmt-yr" min="1" max="50" value="23" oninput="calcLimit()">
+              <span class="isfx">년</span>
+            </div>
+          </div>
+        </div>
+        <div id="limit-table"></div>
+      </div>
+    </div>
+    <div class="glass">
+      <div class="ch"><div class="ch-icon">💡</div><div class="ch-title">연금수령 절세 전략</div><div class="ch-badge">조특법 §146</div></div>
+      <div class="cb">
+        <div class="si"><div class="sn">1</div><div class="sb"><div class="st">연금수령 한도 내 → 퇴직소득세 30% 감면</div><div class="sd">연간한도 이내로 수령하면 퇴직소득세 × 70%만 납부. 한도 초과분은 감면 없이 100% 납부.</div></div></div>
+        <div class="si"><div class="sn">2</div><div class="sb"><div class="st">운용수익 과세: 연금소득세 3.3~5.5%</div><div class="sd">IRP 계좌 내 운용수익은 인출 시 과세. 연 1,500만원 이하: 3.3~5.5%. 초과분: 종합소득세 또는 16.5% 분리과세 선택. 계좌 내 운용 시 과세 이연 (매우 큰 장점).</div></div></div>
+        <div class="si"><div class="sn">3</div><div class="sb"><div class="st">사망 시: 잔액 3.3% 차감 후 상속 → 약 50% 상속세</div><div class="sd">금액이 클 경우 약 50% 상속세 발생 가능. 사전 상속 전략 수립 권고.</div></div></div>
+        <div class="si"><div class="sn">4</div><div class="sb"><div class="st">퇴직금 먼저 인출, 운용수익은 이후 발생</div><div class="sd">IRP 내 퇴직금이 먼저 사용되고 운용수익은 순차 발생. 인출(연금수령/해지) 시점에 세금 결정.</div></div></div>
+      </div>
+    </div>
+  </div>
+  <!-- ══ TAB 3: 해설 ══ -->
+  <div id="tab-guide" class="tab-pane">
+    <div class="glass">
+      <div class="ch"><div class="ch-icon">⚡</div><div class="ch-title">2026년 세법 개정 핵심 비교</div><div class="ch-badge">현행 vs 2026</div></div>
+      <div class="cb">
+        <div class="ibox green" style="margin-bottom:10px">✅ 스캔본(국세청) 6개 항목 전수 역산 검증 — 근속공제·환산급여·환산공제·과세표준·환산세액·산출세액 완전 일치</div>
+        <div class="ctbl">
+          <div class="ccl old-c"><div class="cct">📋 현행 (2024)</div>
+            <div class="cr">근속공제(20년초과): <strong>1,200만+120만×초과</strong></div>
+            <div class="cr">근속공제(10년): <strong>400만원</strong></div>
+            <div class="cr">환산급여공제(4500만초과): <strong>10%</strong></div>
+            <div class="cr">3억초과 누진공제: <strong>94,060,000</strong></div>
+            <div class="cr">140억·23년 세금: <strong>₩6,134,247,533</strong></div>
+          </div>
+          <div class="ccl new-c"><div class="cct">🆕 2026년 개정</div>
+            <div class="cr">근속공제(20년초과): <strong>4,000만+300만×초과 ↑2.5배</strong></div>
+            <div class="cr">근속공제(10년): <strong>1,500만원 ↑3.75배</strong></div>
+            <div class="cr">환산급여공제(3억초과 신설): <strong>35%</strong></div>
+            <div class="cr">3억초과 누진공제: <strong>65,940,000</strong></div>
+            <div class="cr">140억·23년 세금: <strong>₩4,305,404,125 △절감</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="glass">
+      <div class="ch"><div class="ch-icon">📉</div><div class="ch-title">근속연수 공제표 (2026)</div><div class="ch-badge">§481</div></div>
+      <div class="cb"><div class="tw"><table class="dt">
+        <thead><tr><th>근속연수</th><th>2026 산식</th><th>현행 산식</th><th>10년</th><th>20년</th><th>23년</th></tr></thead>
+        <tbody>
+          <tr><td>5년 이하</td><td>100만×연수</td><td>30만×연수</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr class="nr"><td>6~10년</td><td>500만+200만×(연수−5)</td><td>150만+50만×(연수−5)</td><td>₩15,000,000</td><td>—</td><td>—</td></tr>
+          <tr class="nr"><td>11~20년</td><td>1,500만+250만×(연수−10)</td><td>400만+80만×(연수−10)</td><td>—</td><td>₩40,000,000</td><td>—</td></tr>
+          <tr class="hl"><td>20년 초과 ★</td><td>4,000만+300만×(연수−20)</td><td>1,200만+120만×(연수−20)</td><td>—</td><td>—</td><td>₩49,000,000</td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+    <div class="glass">
+      <div class="ch"><div class="ch-icon">📊</div><div class="ch-title">환산급여 공제표 (2026)</div><div class="ch-badge">§482</div></div>
+      <div class="cb">
+        <div class="sf" style="margin-bottom:8px">환산급여 = (퇴직금 − 근속연수공제) ÷ 근속연수 × 12</div>
+        <div class="tw"><table class="dt">
+          <thead><tr><th>환산급여 구간</th><th>2026 공제 산식</th><th>공제율</th></tr></thead>
+          <tbody>
+            <tr><td>800만원 이하</td><td>환산급여 × 50%</td><td>50%</td></tr>
+            <tr><td>800만~1,700만</td><td>400만+초과×40%</td><td>40%</td></tr>
+            <tr><td>1,700만~3,000만</td><td>760만+초과×30%</td><td>30%</td></tr>
+            <tr><td>3,000만~4,500만</td><td>1,150만+초과×20%</td><td>20%</td></tr>
+            <tr><td>4,500만~3억</td><td>1,450만+초과×10%</td><td>10%</td></tr>
+            <tr class="hl"><td>3억 초과 ★ (2026 신설)</td><td>1억5,170만+초과×35%</td><td>35%</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="glass">
+      <div class="ch"><div class="ch-icon">📈</div><div class="ch-title">누진세율표 (2026)</div><div class="ch-badge">§55</div></div>
+      <div class="cb"><div class="tw"><table class="dt">
+        <thead><tr><th>과세표준</th><th>세율</th><th>2026 누진공제</th><th>현행 누진공제</th></tr></thead>
+        <tbody>
+          <tr><td>1,400만 이하</td><td>6%</td><td>—</td><td>—</td></tr>
+          <tr><td>1,400만~5,000만</td><td>15%</td><td>1,260,000</td><td>1,260,000</td></tr>
+          <tr><td>5,000만~8,800만</td><td>24%</td><td>5,760,000</td><td>5,760,000</td></tr>
+          <tr><td>8,800만~1.5억</td><td>35%</td><td>15,440,000</td><td>15,440,000</td></tr>
+          <tr><td>1.5억~3억</td><td>38%</td><td>19,940,000</td><td>19,940,000</td></tr>
+          <tr class="hl"><td>3억 초과 ★</td><td>45%</td><td>65,940,000</td><td>94,060,000</td></tr>
+        </tbody>
+      </table></div>
+      <div class="sf" style="margin-top:8px">산출세액 = (과표×세율 − 누진공제) ÷ 12 × 근속연수 · 최종 = 산출세액 × 1.1</div>
+      </div>
+    </div>
+    <div class="glass">
+      <div class="ch"><div class="ch-icon">🏦</div><div class="ch-title">IRP 연금수령 30% 감면</div><div class="ch-badge">조특법 §146</div></div>
+      <div class="cb">
+        <div class="tw"><table class="dt" style="margin-bottom:9px">
+          <thead><tr><th>방식</th><th>세금</th><th>절세</th><th>140억·23년 기준</th></tr></thead>
+          <tbody>
+            <tr><td>일시금</td><td>100%</td><td>없음</td><td>₩4,305,404,125</td></tr>
+            <tr class="hl"><td>IRP 연금</td><td>70%</td><td>30% 감면</td><td>₩3,013,782,888</td></tr>
+          </tbody>
+        </table></div>
+        <div class="ibox green">140억 기준 IRP 절세액: <strong>₩1,291,621,237 (약 12.9억)</strong></div>
+        <div class="rqg">
+          <div class="rqi"><div class="rqn">1</div><div class="rqt">만 55세 이후</div><div class="rqd">연금 개시</div></div>
+          <div class="rqi"><div class="rqn">2</div><div class="rqt">10년 이상</div><div class="rqd">분할 수령</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ══ TAB 4: 쉬운 설명 ══ -->
+  <div id="tab-easy" class="tab-pane">
+    <div class="eh">
+      <div style="font-size:32px;margin-bottom:5px">🧒</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:var(--gold-lt);margin-bottom:3px">초등학생도 이해하는 세금 이야기</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.38);line-height:1.7">계산기 탭에 금액을 입력하면 그 숫자로 쉽게 설명해 드립니다</div>
+    </div>
+    <div class="glass" id="easy-no">
+      <div class="cb" style="text-align:center;padding:24px">
+        <div style="font-size:32px;margin-bottom:8px">👆</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink-mid);margin-bottom:4px">먼저 계산기 탭에서 금액을 입력해 주세요</div>
+        <div style="font-size:11px;color:var(--muted)">입력하면 그 숫자로 쉬운 설명이 자동으로 나타납니다</div>
+        <button onclick="switchTab('calc',document.querySelectorAll('.nav-tab')[0])"
+          style="margin-top:12px;padding:8px 20px;background:var(--gold);border:none;border-radius:20px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer">🧮 계산기로 이동</button>
+      </div>
+    </div>
+    <div id="easy-wrap" style="display:none">
+      <div class="sc"><div class="sh c1"><div class="sbdg">💼</div><div><div class="ssn">오늘의 상황</div><div class="sst">열심히 일한 당신, 퇴직금을 받습니다</div></div></div>
+        <div class="sby"><div class="sa"><span id="e-yr"></span>동안 열심히 일하고 퇴직했어요. 회사에서 <strong id="e-amt"></strong>을 주기로 했어요.<br><br>그런데 나라에서: <em>"돈을 많이 받으면 세금을 내야 해요!"</em> 이걸 <strong>퇴직소득세</strong>라고 해요. 다른 소득과 합산하지 않고 따로 계산해요 (<strong>분류과세</strong>).</div></div></div>
+      <div class="sc"><div class="sh c2"><div class="sbdg">🎁</div><div><div class="ssn">STEP 1 · 근속연수 공제 (2026 확대!)</div><div class="sst">오래 일한 보상으로 세금을 깎아줘요</div></div></div>
+        <div class="sby">
+          <div class="sa"><span id="e-yr2"></span>동안 일했으니 <strong id="e-ded"></strong>만큼은 세금을 안 매기기로 했어요 🎁<br>2026년부터 이 공제가 <strong>3배 이상 늘었어요!</strong></div>
+          <div class="cb_"><div class="cbt">계산 (2026 개정)</div>
+            <div class="cl"><span class="cll">퇴직금</span><span class="clv" id="e-c1a">—</span></div>
+            <div class="cl"><span class="cll">근속연수 공제 🎁</span><span class="clv" id="e-c1d" style="color:var(--green)">—</span></div>
+            <div class="cl res"><span class="cll">남은 금액</span><span class="clv" id="e-c1r">—</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="sc"><div class="sh c3"><div class="sbdg">✂️</div><div><div class="ssn">STEP 2 · 환산급여</div><div class="sst">큰 돈을 1년치로 나눠서 세율을 낮춰요</div></div></div>
+        <div class="sby">
+          <div class="sa"><strong id="e-amt2"></strong>을 올해만 번 돈으로 보면 세율이 너무 높아요. 😱<br><em>"<span id="e-yr3"></span>에 걸쳐 1년에 얼마씩 받은 셈으로 계산할게요!"</em> — 나라의 특별 혜택이에요. 🐷</div>
+          <div class="cb_"><div class="cbt">환산급여 계산</div>
+            <div class="cl"><span class="cll">남은 금액</span><span class="clv" id="e-c2b">—</span></div>
+            <div class="cl"><span class="cll">÷ <span id="e-c2y">—</span>년 × 12개월</span><span class="clv">↓</span></div>
+            <div class="cl res"><span class="cll">1년치 급여로 환산</span><span class="clv" id="e-c2e">—</span></div>
+          </div>
+          <div class="bbl tip">이렇게 나누면 세율이 훨씬 낮아져요! 퇴직소득세의 핵심 절세 장치예요.</div>
+        </div>
+      </div>
+      <div class="sc"><div class="sh c3"><div class="sbdg">🎪</div><div><div class="ssn">STEP 3 · 환산급여 공제 (2026 신설!)</div><div class="sst">3억 초과 구간이 새로 생겨서 더 많이 깎아줘요</div></div></div>
+        <div class="sby">
+          <div class="sa">1년치로 나눈 금액에서 <strong>또 공제</strong>를 해줘요. 2026년에는 3억 초과 구간이 새로 생겨서 훨씬 많이 공제받아요!</div>
+          <div class="cb_"><div class="cbt">과세표준 계산</div>
+            <div class="cl"><span class="cll">환산급여</span><span class="clv" id="e-c3e">—</span></div>
+            <div class="cl"><span class="cll" id="e-c3el">환산급여 공제</span><span class="clv" id="e-c3d" style="color:var(--green)">—</span></div>
+            <div class="cl res"><span class="cll">과세표준 (세금 매길 금액)</span><span class="clv" id="e-c3t">—</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="sc"><div class="sh c4"><div class="sbdg">📊</div><div><div class="ssn">STEP 4 · 세율 적용 & 역환산</div><div class="sst">세금 계산 후 다시 원래 연수로 되돌려요</div></div></div>
+        <div class="sby">
+          <div class="sa">과세표준에 세율을 곱하고, 아까 나눴던 걸 <strong>다시 <span id="e-yr5"></span>년으로 되돌려요.</strong> 이 역환산이 없으면 세금이 훨씬 많아요!</div>
+          <div class="cb_"><div class="cbt">최종 세금 계산</div>
+            <div class="cl"><span class="cll">환산 산출세액 (45%−누진공제)</span><span class="clv" id="e-c4ct">—</span></div>
+            <div class="cl"><span class="cll">÷12 × <span id="e-c4y">—</span>년 (역환산)</span><span class="clv">↓</span></div>
+            <div class="cl"><span class="cll">퇴직소득 산출세액</span><span class="clv" id="e-c4rt">—</span></div>
+            <div class="cl"><span class="cll">지방소득세 +10%</span><span class="clv" id="e-c4lt" style="color:var(--red)">—</span></div>
+            <div class="cl res"><span class="cll">💸 최종 세금</span><span class="clv" id="e-c4tot" style="color:var(--red)">—</span></div>
+          </div>
+          <div class="bbl warn" id="e-warn">이 세금이 일시금으로 받을 때 내야 하는 돈이에요.</div>
+        </div>
+      </div>
+      <div class="sc"><div class="sh c5"><div class="sbdg">🏦</div><div><div class="ssn">STEP 5 · IRP 마법!</div><div class="sst">IRP로 받으면 세금이 30% 줄어요</div></div></div>
+        <div class="sby">
+          <div class="sa">조건: 1 <strong>55살 이후</strong> 받기 시작 🎂 2 <strong>10년 이상</strong> 나눠서 받기 📅<br>이 두 가지만 지키면 세금을 30% 아낄 수 있어요! ✨</div>
+          <div class="fc">
+            <div class="fcc r"><div class="fct">💳 일시금</div>
+              <div class="fci"><div class="fcil">세금</div><div class="fciv" id="e-lt">—</div></div>
+              <div class="fci"><div class="fcil">실수령</div><div class="fciv lg" id="e-ln">—</div></div>
+              <div class="fci"><div class="fcil">실효세율</div><div class="fciv" id="e-lr">—</div></div>
+            </div>
+            <div class="fcc g"><div class="fct">🏦 IRP 연금</div>
+              <div class="fci"><div class="fcil">세금 (30%감면)</div><div class="fciv" id="e-it">—</div></div>
+              <div class="fci"><div class="fcil">실수령</div><div class="fciv lg" id="e-in">—</div></div>
+              <div class="fci"><div class="fcil">실효세율</div><div class="fciv" id="e-ir">—</div></div>
+            </div>
+          </div>
+          <div class="es"><div class="es-l">IRP로 아끼는 세금</div><div class="es-v" id="e-sav">—</div><div class="es-n" id="e-sn">이 돈을 더 받을 수 있어요!</div></div>
+          <div class="bbl win" id="e-win">IRP를 선택하면 더 받을 수 있어요!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  유재진 자산운용 리서치 · IRP 퇴직소득세 계산기 2026<br>
+  소득세법 §48·§55 2026개정 · 조세특례제한법 §146 · 국세청 고시 기준 검증<br>
+  본 계산기는 참고용이며 실제 세액은 세무사 확인을 권고합니다
+</footer>
+<script>
+/* ── STATE ── */
+var phase=3, lastR=null, lastA=0, lastYr=0;
+/* ── FORMAT ── */
+function won(n){ return '₩'+Math.round(n).toLocaleString('ko-KR'); }
+function pct(n){ return (n*100).toFixed(2)+'%'; }
+function krL(n){
+  if(!n||n<=0) return '';
+  var cho=Math.floor(n/1e12), eo=Math.floor((n%1e12)/1e8), chm=Math.floor((n%1e8)/1e7);
+  var s='';
+  if(cho) s+=cho+'조 ';
+  if(eo)  s+=eo+'억 ';
+  if(chm) s+=chm+'천만 ';
+  return s.trim() ? '= '+s.trim()+'원' : '';
+}
+function sw(n){
+  if(n>=1e12) return (n/1e12).toFixed(1)+'조';
+  if(n>=1e8)  return Math.round(n/1e8)+'억';
+  if(n>=1e4)  return Math.round(n/1e4)+'만';
+  return won(n);
+}
+/* ── 2026 세법 ── */
+function calcDed(yr){
+  if(yr<=5)  return 1000000*yr;
+  if(yr<=10) return 5000000+2000000*(yr-5);
+  if(yr<=20) return 15000000+2500000*(yr-10);
+  return 40000000+3000000*(yr-20);
+}
+function calcEvd(ev){
+  if(ev<=8000000)   return ev*0.5;
+  if(ev<=17000000)  return 4000000+(ev-8000000)*0.4;
+  if(ev<=30000000)  return 7600000+(ev-17000000)*0.3;
+  if(ev<=45000000)  return 11500000+(ev-30000000)*0.2;
+  if(ev<=300000000) return 14500000+(ev-45000000)*0.1;
+  return 151700000+(ev-300000000)*0.35;
+}
+function calcSt(tb){
+  if(tb<=14000000)  return tb*0.06;
+  if(tb<=50000000)  return tb*0.15-1260000;
+  if(tb<=88000000)  return tb*0.24-5760000;
+  if(tb<=150000000) return tb*0.35-15440000;
+  if(tb<=300000000) return tb*0.38-19940000;
+  return tb*0.45-65940000;
+}
+function calcTax(a, yr){
+  var ded = calcDed(yr);
+  var ev  = Math.max(0,(a-ded)/yr*12);
+  var evd = calcEvd(ev);
+  var tb  = Math.max(0,ev-evd);
+  var ct  = calcSt(tb);
+  var rt  = ct/12*yr;
+  var lt  = rt*0.1;
+  var tot = rt+lt;
+  var itax= tot*0.7;
+  var sav = tot*0.3;
+  var bk  = tb<=14e6?'6%':tb<=50e6?'15%':tb<=88e6?'24%':tb<=150e6?'35%':tb<=300e6?'38%':'★45%(3억초과)';
+  var ek  = ev<=8e6?'×50%':ev<=17e6?'400만+(×40%)':ev<=30e6?'760만+(×30%)':ev<=45e6?'1,150만+(×20%)':ev<=300e6?'1,450만+(×10%)':'1.517억+(×35%) ★2026신설';
+  var df  = yr<=5?'100만\xd7'+yr:yr<=10?'500만+200만\xd7('+(yr)+'-5)':yr<=20?'1500만+250만\xd7('+(yr)+'-10)':'4000만+300만\xd7('+(yr)+'-20)';
+  return {ded:ded,ev:ev,evd:evd,tb:tb,ct:ct,rt:rt,lt:lt,tot:tot,itax:itax,sav:sav,bk:bk,ek:ek,df:df};
+}
+/* ── PHASE ── */
+function phaseFrom(yr){ return yr<=10?1:yr<=20?2:3; }
+function applyPhase(p){
+  phase=p;
+  ['btn-p1','btn-p2','btn-p3'].forEach(function(id,i){ document.getElementById(id).classList.toggle('active',i+1===p); });
+  var yr=parseInt(document.getElementById('inp-yr').value)||1;
+  var h={1:'1~10년차: 근속연수공제 최대 ₩15,000,000 (2026)',
+         2:'11~20년차: 근속연수공제 최대 ₩40,000,000 (2026)',
+         3:'20년초과: 근속 '+yr+'년 공제 ₩'+calcDed(yr).toLocaleString()+' (2026)'};
+  document.getElementById('yr-hint').textContent=h[p];
+}
+function setPhase(p){ applyPhase(p); calc(); }
+function onYrInput(){ applyPhase(phaseFrom(parseInt(document.getElementById('inp-yr').value)||1)); calc(); }
+/* ── ROW ── */
+function rrow(cls,tag,tc,name,formula,val,vc){
+  var th=tag?'<span class="rtag '+tc+'">'+tag+'</span>':'';
+  var fh=formula?'<span class="rform">'+formula+'</span>':'';
+  return '<div class="rr '+cls+'"><div class="rl">'+th+'<span class="rname">'+name+'</span>'+fh+'</div><div class="rv '+vc+'">'+val+'</div></div>';
+}
+/* ── MAIN CALC ── */
+function calc(){
+  var raw=parseFloat(document.getElementById('inp-amt').value);
+  var a=isNaN(raw)?0:raw;
+  var yr=parseInt(document.getElementById('inp-yr').value)||1;
+  document.getElementById('kr-lbl').textContent=krL(a);
+  if(!a||a<=0){
+    document.getElementById('result-card').style.display='none';
+    document.getElementById('summary-card').style.display='none';
+    document.getElementById('easy-no').style.display='block';
+    document.getElementById('easy-wrap').style.display='none';
+    return;
+  }
+  var r=calcTax(a,yr);
+  lastR=r; lastA=a; lastYr=yr;
+  var pl=phase===1?'1~10년차':phase===2?'11~20년차':'20년초과';
+  var pc=phase===1?'ph1':phase===2?'ph2':'ph3';
+  document.getElementById('result-title').textContent=pl+' \xb7 근속 '+yr+'년 \xb7 2026 세법';
+  document.getElementById('s-eye').textContent='근속 '+yr+'년 ('+pl+') \xb7 일시금 vs IRP 비교';
+  var html='<div class="phdr '+pc+'"><span class="ptag">'+pl+'</span>근속 '+yr+'년 \xb7 공제 '+won(r.ded)+' \xb7 퇴직금 '+won(a)+'</div>';
+  html+=rrow('inp-r','입력','blu','IRP 퇴직금 총액','근속 '+yr+'년 \xb7 2026 세법',won(a),'blue');
+  html+='<div class="rdiv"></div>';
+  html+=rrow('','STEP 2','','근속연수 공제 (2026)',r.df,won(r.ded),'');
+  html+=rrow('','STEP 3','','환산급여','('+won(a)+'-'+won(r.ded)+')\xf7'+yr+'\xd712',won(r.ev),'');
+  html+=rrow('','STEP 4','','환산급여 공제 (2026)',r.ek,won(r.evd),'');
+  html+=rrow('ttl-r','STEP 4','blu','과세표준',won(r.ev)+'-'+won(r.evd),won(r.tb),'blue');
+  html+='<div class="rdiv"></div>';
+  html+=rrow('','STEP 5','','환산 산출세액 \xb7 '+r.bk,'과표\xd7세율-누진공제',won(r.ct),'');
+  html+=rrow('','STEP 5','','퇴직소득 산출세액','환산세액\xf712\xd7'+yr,won(r.rt),'');
+  html+=rrow('','STEP 5','','지방소득세 (\xd710%)','',won(r.lt),'');
+  html+='<div class="rdiv"></div>';
+  html+=rrow('red-r','세금합계','red','일시금 세금 합계','소득세+지방소득세',won(r.tot),'red xl');
+  html+=rrow('','','','일시금 실수령액','',won(a-r.tot),'');
+  html+=rrow('','','','일시금 실효세율','',pct(r.tot/a),'red pct');
+  html+='<div class="rdiv"></div>';
+  html+=rrow('grn-r','IRP','grn','IRP 연금수령 세금 (30%감면)','일시금세금\xd770%',won(r.itax),'grn');
+  html+=rrow('grn-r','IRP','grn','절세액 (30%감면)','일시금세금\xd730%',won(r.sav),'grn');
+  html+=rrow('grn-r','IRP','grn','IRP 연금수령 실수령 원금','',won(a-r.itax),'grn xl');
+  html+=rrow('gld-r','','','IRP 연금수령 실효세율','',pct(r.itax/a),'gld pct');
+  document.getElementById('r-steps').innerHTML=html;
+  document.getElementById('s-lt').textContent=won(r.tot);
+  document.getElementById('s-ln').textContent=won(a-r.tot);
+  document.getElementById('s-lr').textContent=pct(r.tot/a);
+  document.getElementById('s-it').textContent=won(r.itax);
+  document.getElementById('s-in').textContent=won(a-r.itax);
+  document.getElementById('s-ir').textContent=pct(r.itax/a);
+  document.getElementById('s-sav').textContent=won(r.sav);
+  document.getElementById('result-card').style.display='block';
+  document.getElementById('summary-card').style.display='block';
+  updateEasy(a,yr,r);
+}
+/* ── LIMIT TABLE ── */
+function calcLimit(){
+  var raw=parseFloat(document.getElementById('lmt-amt').value);
+  var base=isNaN(raw)?0:raw;
+  var yr=parseInt(document.getElementById('lmt-yr').value)||23;
+  document.getElementById('lmt-kr').textContent=krL(base);
+  if(!base||base<=0){ document.getElementById('limit-table').innerHTML=''; return; }
+  var r=calcTax(base,yr);
+  var irpTax=r.tot*0.7;   // 전체 IRP 납부 세금
+  var irpRate=irpTax/base; // 실효 IRP 세율
+  var html='<div style="overflow-x:auto"><table class="lt-table">';
+  html+='<thead><tr>';
+  html+='<th>연차</th><th>수령 공식</th>';
+  html+='<th>연간 수령한도</th>';
+  html+='<th>배분 퇴직소득세<br>(IRP 30%감면)</th>';
+  html+='<th>세후 수령액</th>';
+  html+='<th>누적 수령</th>';
+  html+='</tr></thead><tbody>';
+  var cumNet=0;
+  var cumTax=0;
+  for(var n=1; n<=10; n++){
+    var lim=base*n/(11-n)*1.2;
+    var tax_n=lim*irpRate;   // 해당 연차 세금 (수령비율 × IRP세율)
+    var net_n=lim-tax_n;
+    cumNet+=net_n;
+    cumTax+=tax_n;
+    html+='<tr>';
+    html+='<td>'+n+'차</td>';
+    html+='<td style="text-align:left;font-size:10px;color:var(--muted)">'+base.toLocaleString()+'\xd7'+n+'\xf7(11-'+n+')\xd71.2</td>';
+    html+='<td>'+won(Math.round(lim))+'</td>';
+    html+='<td class="red-val">'+won(Math.round(tax_n))+'</td>';
+    html+='<td class="grn-val">'+won(Math.round(net_n))+'</td>';
+    html+='<td>'+won(Math.round(cumNet))+'</td>';
+    html+='</tr>';
+  }
+  // 합계행
+  html+='<tr class="tot-row">';
+  html+='<td>합계</td>';
+  html+='<td style="text-align:left"></td>';
+  html+='<td>—</td>';
+  html+='<td>'+won(Math.round(irpTax))+'</td>';
+  html+='<td>'+won(Math.round(base-irpTax))+'</td>';
+  html+='<td>'+won(Math.round(base-irpTax))+'</td>';
+  html+='</tr>';
+  html+='</tbody></table></div>';
+  html+='<div class="ibox gold" style="margin-top:8px">';
+  html+='퇴직금 '+won(base)+' \xb7 근속 '+yr+'년 \xb7 2026 세법 기준<br>';
+  html+='IRP 납부 세금(30%감면): '+won(Math.round(irpTax))+' (실효세율 '+pct(irpRate)+')<br>';
+  html+='실수령 원금 합계: '+won(Math.round(base-irpTax))+' \xb7 절세액: '+won(Math.round(r.sav));
+  html+='</div>';
+  document.getElementById('limit-table').innerHTML=html;
+}
+/* ── EASY ── */
+function updateEasy(a,yr,r){
+  document.getElementById('easy-no').style.display='none';
+  document.getElementById('easy-wrap').style.display='block';
+  function sid(id,v){ document.getElementById(id).textContent=v; }
+  sid('e-yr',yr+'년');
+  sid('e-amt',sw(a)+'원('+won(a)+')');
+  sid('e-yr2',yr+'년');
+  sid('e-ded',won(r.ded));
+  sid('e-c1a',won(a));
+  sid('e-c1d','- '+won(r.ded));
+  sid('e-c1r',won(a-r.ded));
+  sid('e-amt2',sw(a)+'원');
+  sid('e-yr3',yr+'년');
+  sid('e-c2b',won(a-r.ded));
+  sid('e-c2y',yr);
+  sid('e-c2e',won(r.ev));
+  sid('e-c3e',won(r.ev));
+  sid('e-c3el','환산급여 공제 ('+r.ek+')');
+  sid('e-c3d','- '+won(r.evd));
+  sid('e-c3t',won(r.tb));
+  sid('e-yr5',yr);
+  sid('e-c4ct',won(r.ct));
+  sid('e-c4y',yr);
+  sid('e-c4rt',won(r.rt));
+  sid('e-c4lt','+ '+won(r.lt));
+  sid('e-c4tot',won(r.tot));
+  sid('e-warn','일시금으로 받으면 '+won(r.tot)+'(실효세율 '+pct(r.tot/a)+')을 내야 해요. 하지만 IRP를 선택하면? 👇');
+  sid('e-lt',won(r.tot));
+  sid('e-ln',won(a-r.tot));
+  sid('e-lr',pct(r.tot/a));
+  sid('e-it',won(r.itax));
+  sid('e-in',won(a-r.itax));
+  sid('e-ir',pct(r.itax/a));
+  sid('e-sav',won(r.sav));
+  sid('e-sn',sw(r.sav)+'원을 더 받을 수 있어요!');
+  sid('e-win','IRP를 선택하면 '+won(r.sav)+'을 더 받아요! 아파트 전세금 '+Math.floor(r.sav/100000000)+'채분이에요! 🏠');
+}
+/* ── TAB ── */
+function switchTab(name, btn){
+  document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('tab-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='limit') calcLimit();
+  if(name==='easy' && lastR) updateEasy(lastA, lastYr, lastR);
+}
+/* ── INIT ── */
+(function init(){
+  applyPhase(3);  // 20년 초과 기본 선택
+  // 연금수령 계획표 기본값 초기화
+  document.getElementById('lmt-amt').value='14000000000';
+  document.getElementById('lmt-yr').value='23';
+  calcLimit();
+  calc();
+})();
+</script>
+</body>
+</html>
